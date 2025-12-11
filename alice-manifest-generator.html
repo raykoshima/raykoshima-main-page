@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alice Magic Launcher - Manifest Generator</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a1f2e;
+            --bg-hover: #252b3d;
+            --accent-cyan: #00e5ff;
+            --accent-magenta: #ff00ff;
+            --accent-pink: #ff006e;
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --border: #2d3548;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 229, 255, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 0, 255, 0.1) 0px, transparent 50%);
+        }
+
+        .app {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.3)); }
+            to { filter: drop-shadow(0 0 40px rgba(255, 0, 255, 0.5)); }
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 8px 16px rgba(0, 229, 255, 0.2);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: '▸';
+            color: var(--accent-magenta);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 229, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-cyan);
+            background: var(--bg-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        thead {
+            background: var(--bg-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            border-bottom: 2px solid var(--accent-cyan);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-hover);
+        }
+
+        td {
+            padding: 1rem;
+        }
+
+        .path-cell {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .url-input {
+            width: 100%;
+            min-width: 300px;
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+        }
+
+        .hash-cell {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .size-cell {
+            color: var(--accent-magenta);
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+            transition: width 0.3s ease;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -100% 0; }
+            100% { background-position: 100% 0; }
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin-top: 0.25rem;
+        }
+
+        .search-box {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            width: 100%;
+            max-width: 400px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            animation: slideIn 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .code-preview {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 300px;
+            overflow: auto;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--accent-cyan);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+        }
+
+        .form-input-small {
+            max-width: 200px;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--accent-cyan);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .tag-remove {
+            background: none;
+            border: none;
+            color: var(--accent-pink);
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0;
+            transition: transform 0.2s ease;
+        }
+
+        .tag-remove:hover {
+            transform: scale(1.2);
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .input-with-button input {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            .card {
+                padding: 1.5rem;
+            }
+            .table-container {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        function App() {
+            const [files, setFiles] = useState([]);
+            const [scanning, setScanning] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [toast, setToast] = useState(null);
+            const [cdnUrl, setCdnUrl] = useState('');
+            const fileInputRef = useRef(null);
+            const importInputRef = useRef(null);
+            const configImportRef = useRef(null);
+
+            // Instance Configuration state
+            const [config, setConfig] = useState({
+                name: '',
+                displayName: '',
+                description: '',
+                icon: '',
+                onlineMode: true,
+                minecraft: {
+                    version: '1.21.8',
+                    loader: {
+                        type: 'fabric',
+                        build: '',
+                        enable: true
+                    }
+                },
+                metadata: {
+                    wallpaper: '',
+                    th_displayName: '',
+                    th_description: ''
+                },
+                ignored: [],
+                readonly: false,
+                gameArgs: []
+            });
+            const [newIgnored, setNewIgnored] = useState('');
+            const [newGameArg, setNewGameArg] = useState('');
+
+            // Load from localStorage on mount
+            useEffect(() => {
+                const saved = localStorage.getItem('alice-manifest');
+                if (saved) {
+                    try {
+                        setFiles(JSON.parse(saved));
+                    } catch (e) {
+                        console.error('Failed to load saved data:', e);
+                    }
+                }
+
+                const savedCdn = localStorage.getItem('alice-cdn-url');
+                if (savedCdn) {
+                    setCdnUrl(savedCdn);
+                }
+
+                const savedConfig = localStorage.getItem('alice-config');
+                if (savedConfig) {
+                    try {
+                        setConfig(JSON.parse(savedConfig));
+                    } catch (e) {
+                        console.error('Failed to load config:', e);
+                    }
+                }
+            }, []);
+
+            // Auto-save to localStorage
+            useEffect(() => {
+                if (files.length > 0) {
+                    localStorage.setItem('alice-manifest', JSON.stringify(files));
+                }
+            }, [files]);
+
+            // Save CDN URL to localStorage
+            useEffect(() => {
+                if (cdnUrl) {
+                    localStorage.setItem('alice-cdn-url', cdnUrl);
+                }
+            }, [cdnUrl]);
+
+            // Save config to localStorage
+            useEffect(() => {
+                localStorage.setItem('alice-config', JSON.stringify(config));
+            }, [config]);
+
+            const showToast = (message) => {
+                setToast(message);
+                setTimeout(() => setToast(null), 3000);
+            };
+
+            const calculateSHA1 = async (file) => {
+                const buffer = await file.arrayBuffer();
+                const hashBuffer = await crypto.subtle.digest('SHA-1', buffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            };
+
+            const formatFileSize = (bytes) => {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+                return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+            };
+
+            const processFiles = async (fileList, basePath = '') => {
+                const processedFiles = [];
+                let processed = 0;
+
+                for (const file of fileList) {
+                    const relativePath = basePath ? 
+                        file.webkitRelativePath.replace(basePath + '/', '') : 
+                        file.webkitRelativePath;
+
+                    const hash = await calculateSHA1(file);
+                    
+                    processedFiles.push({
+                        path: relativePath,
+                        url: '',
+                        size: file.size,
+                        hash: hash
+                    });
+
+                    processed++;
+                    setProgress((processed / fileList.length) * 100);
+                }
+
+                return processedFiles;
+            };
+
+            const handleFolderSelect = async (e) => {
+                const fileList = Array.from(e.target.files);
+                if (fileList.length === 0) return;
+
+                setScanning(true);
+                setProgress(0);
+
+                try {
+                    // Get base folder name from first file
+                    const basePath = fileList[0].webkitRelativePath.split('/')[0];
+                    const processed = await processFiles(fileList, basePath);
+                    setFiles(processed);
+                    showToast(`✅ Scanned ${processed.length} files successfully!`);
+                } catch (error) {
+                    console.error('Error processing files:', error);
+                    showToast('❌ Error scanning files');
+                } finally {
+                    setScanning(false);
+                    setProgress(0);
+                }
+            };
+
+            const handleUrlChange = (index, newUrl) => {
+                const updated = [...files];
+                updated[index].url = newUrl;
+                setFiles(updated);
+            };
+
+            const exportManifest = () => {
+                const manifest = files.map(({ path, url, size, hash }) => ({
+                    path,
+                    url,
+                    size,
+                    hash
+                }));
+
+                const blob = new Blob([JSON.stringify(manifest, null, 2)], { 
+                    type: 'application/json' 
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'manifest.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('📥 Manifest exported!');
+            };
+
+            const copyToClipboard = () => {
+                const manifest = files.map(({ path, url, size, hash }) => ({
+                    path,
+                    url,
+                    size,
+                    hash
+                }));
+                navigator.clipboard.writeText(JSON.stringify(manifest, null, 2));
+                showToast('📋 Copied to clipboard!');
+            };
+
+            const importManifest = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const imported = JSON.parse(event.target.result);
+                        setFiles(imported);
+                        showToast('📤 Manifest imported!');
+                    } catch (error) {
+                        showToast('❌ Invalid JSON file');
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            const clearAll = () => {
+                if (confirm('Clear all data? This cannot be undone.')) {
+                    setFiles([]);
+                    localStorage.removeItem('alice-manifest');
+                    showToast('🗑️ Data cleared');
+                }
+            };
+
+            const autoFillUrls = (onlyEmpty = false) => {
+                if (!cdnUrl.trim()) {
+                    showToast('⚠️ Please enter a CDN URL first');
+                    return;
+                }
+
+                // Remove trailing slash from CDN URL if present
+                const baseUrl = cdnUrl.trim().replace(/\/$/, '');
+
+                const updated = files.map(file => {
+                    // Only update if onlyEmpty is false, or if URL is empty
+                    if (!onlyEmpty || !file.url) {
+                        // Split path into segments and encode each one
+                        const encodedPath = file.path
+                            .split('/')
+                            .map(segment => encodeURIComponent(segment))
+                            .join('/');
+                        
+                        return {
+                            ...file,
+                            url: `${baseUrl}/${encodedPath}`
+                        };
+                    }
+                    return file;
+                });
+
+                setFiles(updated);
+                const count = onlyEmpty ? 
+                    updated.filter(f => f.url.startsWith(baseUrl)).length : 
+                    updated.length;
+                showToast(`✅ Auto-filled ${count} URLs!`);
+            };
+
+            // Instance Config functions
+            const updateConfig = (path, value) => {
+                setConfig(prev => {
+                    const keys = path.split('.');
+                    const newConfig = JSON.parse(JSON.stringify(prev));
+                    let current = newConfig;
+                    
+                    for (let i = 0; i < keys.length - 1; i++) {
+                        current = current[keys[i]];
+                    }
+                    current[keys[keys.length - 1]] = value;
+                    
+                    return newConfig;
+                });
+            };
+
+            const addIgnored = () => {
+                if (newIgnored.trim()) {
+                    setConfig(prev => ({
+                        ...prev,
+                        ignored: [...prev.ignored, newIgnored.trim()]
+                    }));
+                    setNewIgnored('');
+                }
+            };
+
+            const removeIgnored = (index) => {
+                setConfig(prev => ({
+                    ...prev,
+                    ignored: prev.ignored.filter((_, i) => i !== index)
+                }));
+            };
+
+            const addGameArg = () => {
+                if (newGameArg.trim()) {
+                    setConfig(prev => ({
+                        ...prev,
+                        gameArgs: [...prev.gameArgs, newGameArg.trim()]
+                    }));
+                    setNewGameArg('');
+                }
+            };
+
+            const removeGameArg = (index) => {
+                setConfig(prev => ({
+                    ...prev,
+                    gameArgs: prev.gameArgs.filter((_, i) => i !== index)
+                }));
+            };
+
+            const exportConfig = () => {
+                // Clean up config - remove empty optional fields
+                const cleanConfig = {
+                    $schema: "https://cdn.furimoe.com/schema/alice-magic-launcher.json",
+                    name: config.name,
+                    displayName: config.displayName,
+                    description: config.description,
+                    onlineMode: config.onlineMode,
+                    minecraft: config.minecraft
+                };
+
+                if (config.icon) cleanConfig.icon = config.icon;
+                if (config.metadata.wallpaper || config.metadata.th_displayName || config.metadata.th_description) {
+                    cleanConfig.metadata = {};
+                    if (config.metadata.wallpaper) cleanConfig.metadata.wallpaper = config.metadata.wallpaper;
+                    if (config.metadata.th_displayName) cleanConfig.metadata.th_displayName = config.metadata.th_displayName;
+                    if (config.metadata.th_description) cleanConfig.metadata.th_description = config.metadata.th_description;
+                }
+                if (config.ignored.length > 0) cleanConfig.ignored = config.ignored;
+                if (config.readonly) cleanConfig.readonly = config.readonly;
+                if (config.gameArgs.length > 0) cleanConfig.gameArgs = config.gameArgs;
+
+                const blob = new Blob([JSON.stringify(cleanConfig, null, 2)], { 
+                    type: 'application/json' 
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'instance-config.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('📥 Instance config exported!');
+            };
+
+            const importConfig = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const imported = JSON.parse(event.target.result);
+                        setConfig({
+                            name: imported.name || '',
+                            displayName: imported.displayName || '',
+                            description: imported.description || '',
+                            icon: imported.icon || '',
+                            onlineMode: imported.onlineMode !== undefined ? imported.onlineMode : true,
+                            minecraft: imported.minecraft || {
+                                version: '1.21.8',
+                                loader: { type: 'fabric', build: '', enable: true }
+                            },
+                            metadata: imported.metadata || { wallpaper: '', th_displayName: '', th_description: '' },
+                            ignored: imported.ignored || [],
+                            readonly: imported.readonly || false,
+                            gameArgs: imported.gameArgs || []
+                        });
+                        showToast('📤 Config imported!');
+                    } catch (error) {
+                        showToast('❌ Invalid config JSON');
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            const copyConfigToClipboard = () => {
+                const cleanConfig = {
+                    $schema: "https://cdn.furimoe.com/schema/alice-magic-launcher.json",
+                    name: config.name,
+                    displayName: config.displayName,
+                    description: config.description,
+                    onlineMode: config.onlineMode,
+                    minecraft: config.minecraft
+                };
+
+                if (config.icon) cleanConfig.icon = config.icon;
+                if (config.metadata.wallpaper || config.metadata.th_displayName || config.metadata.th_description) {
+                    cleanConfig.metadata = {};
+                    if (config.metadata.wallpaper) cleanConfig.metadata.wallpaper = config.metadata.wallpaper;
+                    if (config.metadata.th_displayName) cleanConfig.metadata.th_displayName = config.metadata.th_displayName;
+                    if (config.metadata.th_description) cleanConfig.metadata.th_description = config.metadata.th_description;
+                }
+                if (config.ignored.length > 0) cleanConfig.ignored = config.ignored;
+                if (config.readonly) cleanConfig.readonly = config.readonly;
+                if (config.gameArgs.length > 0) cleanConfig.gameArgs = config.gameArgs;
+
+                navigator.clipboard.writeText(JSON.stringify(cleanConfig, null, 2));
+                showToast('📋 Config copied to clipboard!');
+            };
+
+            const filteredFiles = files.filter(file => 
+                file.path.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+            const filledUrls = files.filter(f => f.url).length;
+
+            return (
+                <div className="app">
+                    <div className="header">
+                        <h1 className="title">Alice Magic</h1>
+                        <p className="subtitle">Manifest Generator by claude.ai</p>
+                    </div>
+
+                    {/* Instance Configuration Section */}
+                    <div className="card">
+                        <h2 className="section-title">Instance Configuration</h2>
+                        
+                        <div className="button-group" style={{ marginBottom: '2rem' }}>
+                            <button 
+                                className="btn btn-secondary"
+                                onClick={() => configImportRef.current.click()}
+                            >
+                                📤 Import Config
+                            </button>
+                            <button 
+                                className="btn btn-primary"
+                                onClick={exportConfig}
+                            >
+                                💾 Export Config
+                            </button>
+                            <button 
+                                className="btn btn-secondary"
+                                onClick={copyConfigToClipboard}
+                            >
+                                📋 Copy Config
+                            </button>
+                        </div>
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Name (Required) *</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="alice-magic"
+                                    value={config.name}
+                                    onChange={(e) => updateConfig('name', e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ''))}
+                                />
+                                <small style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
+                                    Lowercase letters, numbers, hyphens, underscores only
+                                </small>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Display Name (Required) *</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Alice Magic: Furiora's World"
+                                    value={config.displayName}
+                                    onChange={(e) => updateConfig('displayName', e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Description (Required) *</label>
+                            <textarea
+                                className="form-input form-textarea"
+                                placeholder="A modded Minecraft experience with adventure."
+                                value={config.description}
+                                onChange={(e) => updateConfig('description', e.target.value)}
+                            />
+                        </div>
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Icon URL</label>
+                                <input
+                                    type="url"
+                                    className="form-input"
+                                    placeholder="https://cdn.example.com/icon.webp"
+                                    value={config.icon}
+                                    onChange={(e) => updateConfig('icon', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Wallpaper URL</label>
+                                <input
+                                    type="url"
+                                    className="form-input"
+                                    placeholder="https://cdn.example.com/wallpaper.webp"
+                                    value={config.metadata.wallpaper}
+                                    onChange={(e) => updateConfig('metadata.wallpaper', e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">
+                                <input
+                                    type="checkbox"
+                                    className="form-checkbox"
+                                    checked={config.onlineMode}
+                                    onChange={(e) => updateConfig('onlineMode', e.target.checked)}
+                                    style={{ marginRight: '0.5rem' }}
+                                />
+                                Online Mode (Requires authentication)
+                            </label>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">
+                                <input
+                                    type="checkbox"
+                                    className="form-checkbox"
+                                    checked={config.readonly}
+                                    onChange={(e) => updateConfig('readonly', e.target.checked)}
+                                    style={{ marginRight: '0.5rem' }}
+                                />
+                                Read-only Instance
+                            </label>
+                        </div>
+
+                        <h3 style={{ 
+                            color: 'var(--accent-magenta)', 
+                            marginTop: '2rem', 
+                            marginBottom: '1rem',
+                            fontSize: '1rem'
+                        }}>
+                            ⚙️ Minecraft Configuration
+                        </h3>
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Minecraft Version *</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="1.21.8 or latest"
+                                    value={config.minecraft.version}
+                                    onChange={(e) => updateConfig('minecraft.version', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Mod Loader Type *</label>
+                                <select
+                                    className="form-select"
+                                    value={config.minecraft.loader.type}
+                                    onChange={(e) => updateConfig('minecraft.loader.type', e.target.value)}
+                                >
+                                    <option value="fabric">Fabric</option>
+                                    <option value="forge">Forge</option>
+                                    <option value="quilt">Quilt</option>
+                                    <option value="neoforge">NeoForge</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Loader Build Version</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="0.17.2"
+                                    value={config.minecraft.loader.build}
+                                    onChange={(e) => updateConfig('minecraft.loader.build', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">
+                                    <input
+                                        type="checkbox"
+                                        className="form-checkbox"
+                                        checked={config.minecraft.loader.enable}
+                                        onChange={(e) => updateConfig('minecraft.loader.enable', e.target.checked)}
+                                        style={{ marginRight: '0.5rem' }}
+                                    />
+                                    Enable Mod Loader
+                                </label>
+                            </div>
+                        </div>
+
+                        <h3 style={{ 
+                            color: 'var(--accent-magenta)', 
+                            marginTop: '2rem', 
+                            marginBottom: '1rem',
+                            fontSize: '1rem'
+                        }}>
+                            🌏 Localization (Thai)
+                        </h3>
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Thai Display Name</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="อลิซ เมจิก: โลกของฟูริโอร่า"
+                                    value={config.metadata.th_displayName}
+                                    onChange={(e) => updateConfig('metadata.th_displayName', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Thai Description</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="ประสบการณ์มอด Minecraft"
+                                    value={config.metadata.th_description}
+                                    onChange={(e) => updateConfig('metadata.th_description', e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <h3 style={{ 
+                            color: 'var(--accent-magenta)', 
+                            marginTop: '2rem', 
+                            marginBottom: '1rem',
+                            fontSize: '1rem'
+                        }}>
+                            🚫 Ignored Files/Folders
+                        </h3>
+
+                        <div className="form-group">
+                            <div className="input-with-button">
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="options.txt, logs, crash-reports"
+                                    value={newIgnored}
+                                    onChange={(e) => setNewIgnored(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && addIgnored()}
+                                />
+                                <button className="btn btn-primary" onClick={addIgnored}>
+                                    Add
+                                </button>
+                            </div>
+                            <div className="tag-container">
+                                {config.ignored.map((item, index) => (
+                                    <div key={index} className="tag">
+                                        {item}
+                                        <button 
+                                            className="tag-remove"
+                                            onClick={() => removeIgnored(index)}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <h3 style={{ 
+                            color: 'var(--accent-magenta)', 
+                            marginTop: '2rem', 
+                            marginBottom: '1rem',
+                            fontSize: '1rem'
+                        }}>
+                            🎮 Game Arguments
+                        </h3>
+
+                        <div className="form-group">
+                            <div className="input-with-button">
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="--quickPlayMultiplayer=play.furi.moe"
+                                    value={newGameArg}
+                                    onChange={(e) => setNewGameArg(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && addGameArg()}
+                                />
+                                <button className="btn btn-primary" onClick={addGameArg}>
+                                    Add
+                                </button>
+                            </div>
+                            <div className="tag-container">
+                                {config.gameArgs.map((arg, index) => (
+                                    <div key={index} className="tag">
+                                        {arg}
+                                        <button 
+                                            className="tag-remove"
+                                            onClick={() => removeGameArg(index)}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Manifest Section */}                    <div className="card">
+                        <h2 className="section-title">Manifest Control Panel</h2>
+                        
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label style={{ 
+                                display: 'block', 
+                                marginBottom: '0.5rem', 
+                                color: 'var(--accent-cyan)',
+                                fontSize: '0.9rem',
+                                fontWeight: '500'
+                            }}>
+                                🌐 CDN / File Server URL
+                            </label>
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                <input
+                                    type="text"
+                                    className="url-input"
+                                    placeholder="https://cdn.example.com"
+                                    value={cdnUrl}
+                                    onChange={(e) => setCdnUrl(e.target.value)}
+                                    style={{ flex: '1', minWidth: '300px' }}
+                                />
+                                <button 
+                                    className="btn btn-primary"
+                                    onClick={() => autoFillUrls(false)}
+                                    disabled={files.length === 0 || !cdnUrl.trim()}
+                                    style={{ whiteSpace: 'nowrap' }}
+                                >
+                                    ⚡ Auto-Fill All URLs
+                                </button>
+                                <button 
+                                    className="btn btn-secondary"
+                                    onClick={() => autoFillUrls(true)}
+                                    disabled={files.length === 0 || !cdnUrl.trim()}
+                                    style={{ whiteSpace: 'nowrap' }}
+                                >
+                                    🎯 Fill Empty Only
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="button-group">
+                            <button 
+                                className="btn btn-primary" 
+                                onClick={() => fileInputRef.current.click()}
+                                disabled={scanning}
+                            >
+                                {scanning ? 'Scanning...' : '📁 Select Folder'}
+                            </button>
+                            <button 
+                                className="btn btn-secondary"
+                                onClick={() => importInputRef.current.click()}
+                            >
+                                📤 Import JSON
+                            </button>
+                            <button 
+                                className="btn btn-secondary"
+                                onClick={exportManifest}
+                                disabled={files.length === 0}
+                            >
+                                💾 Export JSON
+                            </button>
+                            <button 
+                                className="btn btn-secondary"
+                                onClick={copyToClipboard}
+                                disabled={files.length === 0}
+                            >
+                                📋 Copy JSON
+                            </button>
+                            <button 
+                                className="btn btn-secondary"
+                                onClick={clearAll}
+                                disabled={files.length === 0}
+                            >
+                                🗑️ Clear All
+                            </button>
+                        </div>
+
+                        {scanning && (
+                            <div className="progress-bar">
+                                <div 
+                                    className="progress-fill" 
+                                    style={{ width: `${progress}%` }}
+                                />
+                            </div>
+                        )}
+
+                        {files.length > 0 && (
+                            <div className="stats">
+                                <div className="stat">
+                                    <span className="stat-label">Total Files</span>
+                                    <span className="stat-value">{files.length}</span>
+                                </div>
+                                <div className="stat">
+                                    <span className="stat-label">Total Size</span>
+                                    <span className="stat-value">{formatFileSize(totalSize)}</span>
+                                </div>
+                                <div className="stat">
+                                    <span className="stat-label">URLs Added</span>
+                                    <span className="stat-value">{filledUrls}/{files.length}</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {files.length > 0 && (
+                        <div className="card">
+                            <h2 className="section-title">Manifest Editor</h2>
+                            <input
+                                type="text"
+                                className="search-box"
+                                placeholder="🔍 Search files..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            <div className="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Path</th>
+                                            <th>URL</th>
+                                            <th>Size</th>
+                                            <th>Hash (SHA-1)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredFiles.map((file, index) => (
+                                            <tr key={index}>
+                                                <td>{index + 1}</td>
+                                                <td className="path-cell" title={file.path}>
+                                                    {file.path}
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type="text"
+                                                        className="url-input"
+                                                        placeholder="https://example.com/file.jar"
+                                                        value={file.url}
+                                                        onChange={(e) => handleUrlChange(
+                                                            files.indexOf(file), 
+                                                            e.target.value
+                                                        )}
+                                                    />
+                                                </td>
+                                                <td className="size-cell">
+                                                    {formatFileSize(file.size)}
+                                                </td>
+                                                <td className="hash-cell" title={file.hash}>
+                                                    {file.hash}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {files.length === 0 && !scanning && (
+                        <div className="card">
+                            <div className="empty-state">
+                                <div className="empty-state-icon">📦</div>
+                                <h3>No files loaded</h3>
+                                <p>Select a folder to start scanning files</p>
+                            </div>
+                        </div>
+                    )}
+
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        className="file-input"
+                        webkitdirectory="true"
+                        multiple
+                        onChange={handleFolderSelect}
+                    />
+
+                    <input
+                        ref={importInputRef}
+                        type="file"
+                        className="file-input"
+                        accept=".json"
+                        onChange={importManifest}
+                    />
+
+                    <input
+                        ref={configImportRef}
+                        type="file"
+                        className="file-input"
+                        accept=".json"
+                        onChange={importConfig}
+                    />
+
+                    {toast && (
+                        <div className="toast">
+                            {toast}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
