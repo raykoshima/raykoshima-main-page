@@ -1,79 +1,139 @@
+/* ★彡 2000s ANIME FANSITE STYLE 彡★ */
+
 /* GLOBAL */
 html,
 body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
-  font-family: Verdana, Arial, sans-serif;
-  background: black;
-  color: #ffffff;
-  cursor: default;
+  min-height: 100%;
+  font-family: "Comic Sans MS", "Comic Sans", Verdana, Arial, sans-serif;
+  color: #ff66cc;
+  cursor: url("https://cur.cursors-4u.net/anime/ani-2/ani155.cur"), auto;
+  /* candy gradient background w/ tiled sparkle feel */
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.25) 0, transparent 6%),
+    radial-gradient(circle at 80% 60%, rgba(255, 255, 255, 0.2) 0, transparent 5%),
+    linear-gradient(160deg, #ffb6e6 0%, #b6e0ff 35%, #d9b6ff 70%, #ffd1f0 100%);
+  background-attachment: fixed;
 }
 
-/* VIDEO BG */
-#video-background {
+/* TWINKLY STAR LAYER */
+#stars {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  inset: 0;
   z-index: -2;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 15% 30%, #fff, transparent),
+    radial-gradient(2px 2px at 70% 20%, #fff, transparent),
+    radial-gradient(1px 1px at 40% 80%, #fff, transparent),
+    radial-gradient(3px 3px at 90% 50%, #fffacd, transparent),
+    radial-gradient(2px 2px at 25% 65%, #fff, transparent);
+  animation: twinkle 2s steps(2) infinite;
 }
 
-#video-background video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+@keyframes twinkle {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
 }
 
-/* OVERLAY */
+/* OVERLAY (kept, but soft) */
 #overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.65);
+  inset: 0;
+  background: rgba(255, 255, 255, 0.08);
   z-index: -1;
+  pointer-events: none;
+}
+
+/* MARQUEES */
+.top-marquee,
+.bottom-marquee {
+  font-size: 13px;
+  font-weight: bold;
+  color: #ff0099;
+  background: #fff0fa;
+  border-top: 2px ridge #ff66cc;
+  border-bottom: 2px ridge #ff66cc;
+  padding: 4px 0;
+  text-shadow: 1px 1px 0 #fff;
 }
 
 /* CONTENT CONTAINER */
 #container {
   width: 720px;
-  margin: 60px auto;
-  padding: 20px;
+  max-width: 92%;
+  margin: 24px auto;
+  padding: 16px;
   text-align: center;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid #444;
+  background:
+    repeating-linear-gradient(45deg, #fff6fb 0 12px, #ffeaf7 12px 24px);
+  border: 5px ridge #ff66cc;
+  border-radius: 14px;
+  box-shadow: 0 0 0 3px #fff, 0 0 22px 6px rgba(255, 102, 204, 0.6);
 }
 
-/* TEXT */
+/* GLITTER FRAME AROUND HEADER */
+.glitter-frame {
+  border: 3px double #cc33ff;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+  background: linear-gradient(90deg, #ffd1f0, #c9eaff, #ffd1f0);
+}
+
+/* TITLE */
 .title {
-  font-size: 36px;
-  letter-spacing: 2px;
-  text-shadow: 2px 2px 0 #000;
+  font-size: 40px;
+  letter-spacing: 1px;
+  margin: 6px 0;
+  color: #ff0099;
+  text-shadow:
+    2px 2px 0 #fff,
+    3px 3px 0 #66ccff,
+    -1px -1px 0 #ffff66;
+  animation: rainbow 6s linear infinite;
+}
+
+@keyframes rainbow {
+  0%   { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
 }
 
 .subtitle {
-  font-size: 14px;
-  color: #ccc;
-  margin-bottom: 20px;
+  font-size: 15px;
+  color: #9933ff;
+  margin-bottom: 6px;
+  font-weight: bold;
 }
 
+/* UNDER CONSTRUCTION BAR */
+.construction {
+  background: repeating-linear-gradient(45deg, #ffcc00 0 14px, #000 14px 28px);
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 6px;
+  margin: 12px auto;
+  border: 2px solid #000;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+  width: 80%;
+}
+
+/* SECTION TITLES */
 .section-title {
   font-weight: bold;
-  text-transform: uppercase;
-  font-size: 12px;
+  font-size: 15px;
   margin-bottom: 10px;
-  color: #aaa;
+  color: #cc33ff;
+  text-shadow: 1px 1px 0 #fff;
 }
 
 hr {
   border: none;
-  border-top: 1px solid #444;
-  margin: 20px 0;
+  border-top: 2px dashed #ff66cc;
+  margin: 18px 0;
 }
 
 /* LINKS */
@@ -83,33 +143,98 @@ ul {
 }
 
 li {
-  margin: 8px 0;
+  margin: 10px 0;
+  font-size: 15px;
 }
 
 a {
-  color: #9fd3ff;
+  color: #0066ff;
   text-decoration: underline;
+  font-weight: bold;
+}
+
+a:visited {
+  color: #9933cc;
 }
 
 a:hover {
-  color: #ffffff;
-  background: #003366;
+  color: #ff0099;
+  background: #ffff66;
+  text-decoration: none;
+}
+
+/* IMAGES */
+.framed-img {
+  max-width: 80%;
+  border: 4px ridge #ff66cc;
+  border-radius: 8px;
+  background: #fff;
+  padding: 4px;
+  box-shadow: 0 0 12px rgba(204, 51, 255, 0.7);
+}
+
+/* LUCKY STAR */
+.lucky-star {
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px dotted #cc33ff;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.lucky-gif {
+  height: 120px;
+  margin: 4px;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(255, 102, 204, 0.8);
+  vertical-align: middle;
+}
+
+.ls-caption {
+  font-size: 13px;
+  color: #ff3399;
+  font-weight: bold;
+  margin-top: 8px;
 }
 
 /* STATUS */
 .status {
-  font-size: 12px;
-  color: #ccc;
+  font-size: 14px;
+  color: #9933ff;
+  font-weight: bold;
 }
 
 .online {
-  color: #00ff00;
+  color: #00cc00;
   font-weight: bold;
+  text-shadow: 0 0 4px #66ff66;
+}
+
+/* BLINK like it's 2003 */
+.blink {
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to { visibility: hidden; }
 }
 
 /* FOOTER */
 .footer {
-  margin-top: 20px;
-  font-size: 11px;
-  color: #888;
+  margin-top: 18px;
+  font-size: 12px;
+  color: #cc3399;
+}
+
+.copyright {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #9933ff;
+}
+
+.thai-text {
+  margin-top: 10px;
+  font-size: 18px;
+  color: #ff0099;
+  font-weight: bold;
 }
