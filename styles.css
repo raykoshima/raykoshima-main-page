@@ -197,6 +197,22 @@ a:hover {
   margin-top: 8px;
 }
 
+/* NYA~ */
+.nya {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff66cc;
+  margin-top: 6px;
+  text-shadow: 1px 1px 0 #fff, 0 0 6px #ffb6e6;
+  display: inline-block;
+  animation: wiggle 1.2s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
 /* STATUS */
 .status {
   font-size: 14px;
